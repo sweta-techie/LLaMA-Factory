@@ -15,6 +15,7 @@ from .utils.longlora import configure_longlora
 from .utils.moe import add_z3_leaf_module, configure_moe
 from .utils.quantization import configure_quantization
 from .utils.rope import configure_rope
+import math
 
 
 if TYPE_CHECKING:
@@ -76,9 +77,9 @@ def patch_model(
 ) -> None:
     gen_config = model.generation_config  # check and fix generation config
     if not gen_config.do_sample and (
-        (gen_config.temperature is not None and gen_config.temperature != 1.0)
-        or (gen_config.top_p is not None and gen_config.top_p != 1.0)
-        or (gen_config.typical_p is not None and gen_config.typical_p != 1.0)
+        (gen_config.temperature is not None and not math.isclose(gen_config.temperature, 1.0, rel_tol=1e-09, abs_tol=0.0))
+        or (gen_config.top_p is not None and not math.isclose(gen_config.top_p, 1.0, rel_tol=1e-09, abs_tol=0.0))
+        or (gen_config.typical_p is not None and not math.isclose(gen_config.typical_p, 1.0, rel_tol=1e-09, abs_tol=0.0))
     ):
         gen_config.do_sample = True
 
