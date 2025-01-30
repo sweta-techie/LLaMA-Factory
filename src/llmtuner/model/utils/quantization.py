@@ -1,5 +1,4 @@
 import os
-import random
 from enum import Enum, unique
 from typing import TYPE_CHECKING, Any, Dict, List
 
@@ -12,6 +11,7 @@ from transformers.utils.versions import require_version
 from ...extras.constants import FILEEXT2TYPE
 from ...extras.logging import get_logger
 from ...extras.misc import get_current_device
+import secrets
 
 
 if TYPE_CHECKING:
@@ -54,12 +54,12 @@ def _get_quantization_dataset(tokenizer: "PreTrainedTokenizer", model_args: "Mod
     samples = []
     for _ in range(model_args.export_quantization_nsamples):
         while True:
-            sample_idx = random.randint(0, len(dataset) - 1)
+            sample_idx = secrets.SystemRandom().randint(0, len(dataset) - 1)
             sample: Dict[str, torch.Tensor] = tokenizer(dataset[sample_idx]["text"], return_tensors="pt")
             if sample["input_ids"].size(1) >= maxlen:
                 break  # TODO: fix large maxlen
 
-        word_idx = random.randint(0, sample["input_ids"].size(1) - maxlen - 1)
+        word_idx = secrets.SystemRandom().randint(0, sample["input_ids"].size(1) - maxlen - 1)
         input_ids = sample["input_ids"][:, word_idx : word_idx + maxlen]
         samples.append(tokenizer.decode(input_ids[0].tolist(), skip_special_tokens=True))
 
